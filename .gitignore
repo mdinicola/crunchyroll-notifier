@@ -109,6 +109,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+envs/start_local.bat
 
 # Spyder project settings
 .spyderproject

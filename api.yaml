@@ -1,0 +1,39 @@
+---
+swagger: "2.0"
+info:
+  title: Watch Wizard
+  description: API for Watch Wizard application
+  version: 1.0.0
+basePath: "/"
+paths:
+  "/api/newly-added":
+    get:
+      summary: GetNewlyAdded Function
+      description: Lists newly added anime from Crunchyroll
+      operationId: GetNewlyAddedFunction
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+        404:
+          description: Not found
+        500:
+          description: 500 Internal Server Error
+        503:
+          description: SERVICE UNAVAILABLE
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetNewlyAddedFunction.Arn}/invocations"
+      security:
+        - api_key: []
+schemes:
+  - https
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: x-api-key
+    in: header
+    x-amazon-apigateway-api-key-source: HEADER

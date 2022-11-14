@@ -1,0 +1,2 @@
+boto3==1.24.91
+git+https://github.com/mdinicola/crunchyroll.git@25cb1e726870eb54d62800b6dddd1d6ceb83b61b#egg=crunchyroll-beta
