@@ -109,40 +109,40 @@ Resources:
       KeyType: 'API_KEY'
       UsagePlanId: !Ref UsagePlan
 
-  GetNewlyAddedFunction:
+  GetCrunchyListFunction:
     Type: AWS::Serverless::Function
     Condition: IsNotDev
     Properties:
-      FunctionName: !Sub "${ServiceName}-GetNewlyAdded"
+      FunctionName: !Sub "${ServiceName}-GetCrunchyList"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_newly_added
+      Handler: handlers/api_handler.get_crunchylist
       Events:
         Get:
           Type: Api
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/newly-added"
+            Path: "/api/crunchylists/{id}"
             Method: get
             Auth:
               ApiKeyRequired: true
 
-  MockGetNewlyAddedFunction:
+  MockGetCrunchyListFunction:
     Type: AWS::Serverless::Function
     Condition: IsDev
     Properties:
-      FunctionName: !Sub "${ServiceName}-MockGetNewlyAdded"
+      FunctionName: !Sub "${ServiceName}-MockGetCrunchyList"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/mock_api_handler.get_newly_added
+      Handler: handlers/mock_api_handler.get_crunchylist
       Events:
         Get:
           Type: Api
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/mock/newly-added"
+            Path: "/mock/api/crunchylists/{id}"
             Method: get
             Auth:
               ApiKeyRequired: true

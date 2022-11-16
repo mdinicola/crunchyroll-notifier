@@ -1,21 +1,23 @@
 ---
 swagger: "2.0"
 info:
-  title: Watch Wizard
-  description: API for Watch Wizard application
+  title: Crunchyroll Notifier
+  description: API for Crunchyroll Notifier application
   version: 1.0.0
 basePath: "/"
 paths:
-  "/api/newly-added":
+  "/api/crunchylists/{id}":
     get:
-      summary: GetNewlyAdded Function
-      description: Lists newly added anime from Crunchyroll
-      operationId: GetNewlyAddedFunction
+      summary: GetCrunchyList Function
+      description: Gets a custom list from Crunchyroll by id
+      operationId: GetCrunchyList
       produces:
         - application/json
       responses:
         200:
           description: Success
+        400:
+          description: Bad Request
         404:
           description: Not found
         500:
@@ -26,7 +28,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetNewlyAddedFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyList.Arn}/invocations"
       security:
         - api_key: []
 schemes:
