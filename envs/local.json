@@ -1,5 +1,0 @@
-{
-    "GetNewlyAddedFunction": {
-        "SecretsManagerEndpoint": "http://host.docker.internal:4566"
-    }
-}

@@ -11,15 +11,33 @@ Globals:
         SecretName: !Sub "apps/${ServiceName}"
         SecretsManagerEndpoint: ""
 Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - Dev
+      - QA
+      - Prod
+    Default: Dev
   ServiceName:
     Type: String
     Default: CrunchyrollNotifier
   NotificationSound:
     Type: String
     Default: classical
+
+Conditions:
+  IsDev: !Equals 
+    - !Ref Environment
+    - Dev
+  IsNotDev: !Not
+    - !Equals 
+      - !Ref Environment
+      - Dev
+
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
+    Condition: IsNotDev
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -35,15 +53,16 @@ Resources:
             
   SecretsManagerSecret:
     Type: AWS::SecretsManager::Secret
+    Condition: IsNotDev
     Properties:
       Name: !Sub "apps/${ServiceName}"
       Description: !Sub "Secret values for the ${ServiceName} application"
-      SecretString: '{"PushoverUser": "", "PushoverToken": ""}'
+      SecretString: '{"CrunchyrollEmail": "", "CrunchyrollPassword": "", "CrunchyrollListId": "", "PushoverUser": "", "PushoverToken": ""}'
 
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: !Ref Environment
       Name: !Sub "${ServiceName}-ApiGateway"
       DefinitionBody:
         Fn::Transform:
@@ -57,6 +76,7 @@ Resources:
 
   UsagePlan:
     Type: AWS::ApiGateway::UsagePlan
+    Condition: IsNotDev
     Properties:
       UsagePlanName: !Sub "${ServiceName}-Default-Usage-Plan"
       ApiStages:
@@ -72,6 +92,7 @@ Resources:
 
   ApiKey:
     Type: AWS::ApiGateway::ApiKey
+    Condition: IsNotDev
     Properties:
       Name: !Sub "${ServiceName}-Default-API-Key"
       Description: !Sub "Default API key for the ${ServiceName} service"
@@ -82,6 +103,7 @@ Resources:
 
   UsagePlanApiKey:
     Type: AWS::ApiGateway::UsagePlanKey
+    Condition: IsNotDev
     Properties: 
       KeyId: !Ref ApiKey
       KeyType: 'API_KEY'
@@ -89,11 +111,12 @@ Resources:
 
   GetNewlyAddedFunction:
     Type: AWS::Serverless::Function
+    Condition: IsNotDev
     Properties:
       FunctionName: !Sub "${ServiceName}-GetNewlyAdded"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_newly_added         
+      Handler: handlers/api_handler.get_newly_added
       Events:
         Get:
           Type: Api
@@ -105,7 +128,26 @@ Resources:
             Auth:
               ApiKeyRequired: true
 
+  MockGetNewlyAddedFunction:
+    Type: AWS::Serverless::Function
+    Condition: IsDev
+    Properties:
+      FunctionName: !Sub "${ServiceName}-MockGetNewlyAdded"
+      Role: !GetAtt LambdaRole.Arn
+      CodeUri: crunchyroll_notifier/
+      Handler: handlers/mock_api_handler.get_newly_added
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ApiGatewayApi
+            Path: "/api/mock/newly-added"
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+
 Outputs:
   CrunchyrollNotifierApi:
     Description: "API Gateway URL"
-    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"

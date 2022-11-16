@@ -28,7 +28,7 @@ def get_newly_added(event, context):
         crunchyroll_client = CrunchyrollClient(config[CRUNCHYROLL_EMAIL_KEY], config[CRUNCHYROLL_PASSWORD_KEY])
         crunchyroll_client.start_session()
         custom_list = crunchyroll_client.get_custom_list(config[CRUNCHYROLL_LIST_ID_KEY])
-   
+
         return {
             'statusCode': 200,
             'body': json.dumps(custom_list, cls=EnhancedJSONEncoder)
@@ -41,3 +41,4 @@ def get_newly_added(event, context):
             'statusCode': 500,
             'body': json.dumps({'message': message})
         }
+        
