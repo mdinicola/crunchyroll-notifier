@@ -1,0 +1,18 @@
+[
+    {
+        "list_id": "f6e9e152-3ada-4e73-b671-b7bc5874ee65",
+        "total": 3,
+        "title": "Watching",
+        "modified_at": "2022-10-16T17:58:58Z",
+        "is_public": false,
+        "items": []
+    },
+	{
+		"list_id": "Someguid2",
+		"is_public": true,
+		"total": 7,
+		"modified_at": "2022-11-10T17:22:47Z",
+		"title": "List2",
+		"items": []
+	}
+]
