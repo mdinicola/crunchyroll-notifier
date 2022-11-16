@@ -1,13 +1,9 @@
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 import handlers.api_handler as api_handler
 import json
 import logging
 
 _logger = logging.getLogger(__name__)
-
-CRUNCHYROLL_EMAIL_KEY = 'CrunchyrollEmail'
-CRUNCHYROLL_PASSWORD_KEY = 'CrunchyrollPassword'
-CRUNCHYROLL_LIST_ID_KEY = 'CrunchyrollListId'
 
 @patch('handlers.api_handler.SecretsManagerSecret', autospec=True)
 @patch('handlers.api_handler.CrunchyrollClient.start_session', autospec=True)

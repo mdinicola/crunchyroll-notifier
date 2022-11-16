@@ -1,6 +1,6 @@
 from common.enhanced_json_encoder import EnhancedJSONEncoder
-from clients.aws_secrets_manager_client import SecretsManagerSecret
-from clients.crunchyroll_client import CrunchyrollClient
+from services.aws_secrets_manager import SecretsManagerSecret
+from services.crunchyroll import CrunchyrollClient
 from os import environ
 import json
 import logging
