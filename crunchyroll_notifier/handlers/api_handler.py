@@ -22,23 +22,35 @@ def _get_config():
         return None
     return { CRUNCHYROLL_EMAIL_KEY: email, CRUNCHYROLL_PASSWORD_KEY: password, CRUNCHYROLL_LIST_ID_KEY: list_id }
 
+def get_crunchylists(event, context):
+    try:
+        config = _get_config()
+        crunchyroll_client = CrunchyrollClient(config[CRUNCHYROLL_EMAIL_KEY], config[CRUNCHYROLL_PASSWORD_KEY])
+        crunchyroll_client.start_session()
+        crunchy_lists = crunchyroll_client.get_custom_lists()
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps(crunchy_lists, cls=EnhancedJSONEncoder)
+        }
+    except Exception as e:
+        _logger.exception(e)
+        message = 'An unexpected error ocurred.  See log for details.'
+        return {
+            'statusCode': 500,
+            'body': json.dumps({'message': message})
+        }
+
 def get_crunchylist(event, context):
     try:
         config = _get_config()
         crunchyroll_client = CrunchyrollClient(config[CRUNCHYROLL_EMAIL_KEY], config[CRUNCHYROLL_PASSWORD_KEY])
         crunchyroll_client.start_session()
-        custom_list = crunchyroll_client.get_custom_list(event['pathParameters']['id'])
+        crunchy_list = crunchyroll_client.get_custom_list(event['pathParameters']['id'])
 
         return {
             'statusCode': 200,
-            'body': json.dumps(custom_list, cls=EnhancedJSONEncoder)
-        }
-    except KeyError as e:
-        _logger.exception(e)
-        message = 'The request is invalid.  Check your request and try again.'
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'message': message})
+            'body': json.dumps(crunchy_list, cls=EnhancedJSONEncoder)
         }
     except Exception as e:
         _logger.exception(e)

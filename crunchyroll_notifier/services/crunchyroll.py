@@ -13,25 +13,31 @@ class CrunchyrollClient:
     def start_session(self):
         self._cr.start()
 
+    def get_custom_lists(self):
+        lists = self._cr.get_custom_lists()
+        # return lists
+        return [CrunchyList(item.list_id, item) for item in lists]
+
     def get_custom_list(self, list_id):
         list = self._cr.get_custom_list(list_id)
+        # return list
         return CrunchyList(list_id, list)
 
 class CrunchyList:
-    def __init__(self, list_id, data: dict):
+    def __init__(self, list_id, data):
         self.id = list_id
-        self.title: str = data.get("title")
-        self.total: int = data.get("total")
-        self.is_public: bool = data.get("is_public")
-        self.modified_at: str = data.get("modified_at")
-        self.items: List[CrunchyListItem] = [CrunchyListItem(item) for item in data.get("items", [])]
+        self.title: str = data.title
+        self.total: int = data.total
+        self.is_public: bool = data.is_public
+        self.modified_at: str = data.modified_at
+        self.items: List[CrunchyListItem] = [CrunchyListItem(item) for item in data.items]
 
 class CrunchyListItem:
-    def __init__(self, data: dict):
-        self.id: str = data.get("id")
-        self.type: str = data.get("panel").get("type")
-        self.title: str = data.get("panel").get("title")
-        self.slug_title: str = data.get("panel").get("slug_title")
-        self.description: str = data.get("panel").get("description")
-        self.is_dubbed: bool = data.get("panel").get("series_metadata").get("is_dubbed")
-        self.is_subbed: bool = data.get("panel").get("series_metadata").get("is_subbed")
+    def __init__(self, data):
+        self.id: str = data.id
+        self.type: str = data.panel.type
+        self.title: str = data.panel.title
+        self.slug_title: str = data.panel.slug_title
+        self.description: str = data.panel.description
+        self.is_dubbed: bool = data.panel.series_metadata.is_dubbed
+        self.is_subbed: bool = data.panel.series_metadata.is_subbed
