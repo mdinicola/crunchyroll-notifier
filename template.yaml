@@ -11,28 +11,12 @@ Globals:
         SecretName: !Sub "apps/${ServiceName}"
         SecretsManagerEndpoint: ""
 Parameters:
-  Environment:
-    Type: String
-    AllowedValues:
-      - Dev
-      - QA
-      - Prod
-    Default: Dev
   ServiceName:
     Type: String
     Default: CrunchyrollNotifier
   NotificationSound:
     Type: String
     Default: classical
-
-Conditions:
-  IsDev: !Equals 
-    - !Ref Environment
-    - Dev
-  IsNotDev: !Not
-    - !Equals 
-      - !Ref Environment
-      - Dev
 
 Resources:
   LambdaRole:
@@ -62,7 +46,7 @@ Resources:
   ApiGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: !Ref Environment
+      StageName: Prod
       Name: !Sub "${ServiceName}-ApiGateway"
       DefinitionBody:
         Fn::Transform:
@@ -147,45 +131,7 @@ Resources:
             Auth:
               ApiKeyRequired: true
 
-  MockGetCrunchyListsFunction:
-    Type: AWS::Serverless::Function
-    Condition: IsNotDev
-    Properties:
-      FunctionName: !Sub "${ServiceName}-MockGetCrunchyLists"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/mock_api_handler.get_crunchylists
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/mock/api/crunchylists"
-            Method: get
-            Auth:
-              ApiKeyRequired: true
-
-  MockGetCrunchyListFunction:
-    Type: AWS::Serverless::Function
-    Condition: IsDev
-    Properties:
-      FunctionName: !Sub "${ServiceName}-MockGetCrunchyList"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/mock_api_handler.get_crunchylist
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/mock/api/crunchylists/{id}"
-            Method: get
-            Auth:
-              ApiKeyRequired: true
-
 Outputs:
   CrunchyrollNotifierApi:
     Description: "API Gateway URL"
-    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+    Value: !Sub "https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
