@@ -56,6 +56,31 @@ paths:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyList.Arn}/invocations"
       security:
         - api_key: []
+  "/api/recently-added":
+    get:
+      summary: GetRecentlyAdded Function
+      description: Gets recently added media from Crunchyroll
+      operationId: GetRecentlyAdded
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not found
+        500:
+          description: 500 Internal Server Error
+        503:
+          description: SERVICE UNAVAILABLE
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAdded.Arn}/invocations"
+      security:
+        - api_key: []
 schemes:
   - https
 securityDefinitions:

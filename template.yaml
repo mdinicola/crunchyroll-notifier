@@ -21,7 +21,6 @@ Parameters:
 Resources:
   LambdaRole:
     Type: AWS::IAM::Role
-    Condition: IsNotDev
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -37,7 +36,6 @@ Resources:
             
   SecretsManagerSecret:
     Type: AWS::SecretsManager::Secret
-    Condition: IsNotDev
     Properties:
       Name: !Sub "apps/${ServiceName}"
       Description: !Sub "Secret values for the ${ServiceName} application"
@@ -60,7 +58,6 @@ Resources:
 
   UsagePlan:
     Type: AWS::ApiGateway::UsagePlan
-    Condition: IsNotDev
     Properties:
       UsagePlanName: !Sub "${ServiceName}-Default-Usage-Plan"
       ApiStages:
@@ -76,7 +73,6 @@ Resources:
 
   ApiKey:
     Type: AWS::ApiGateway::ApiKey
-    Condition: IsNotDev
     Properties:
       Name: !Sub "${ServiceName}-Default-API-Key"
       Description: !Sub "Default API key for the ${ServiceName} service"
@@ -87,7 +83,6 @@ Resources:
 
   UsagePlanApiKey:
     Type: AWS::ApiGateway::UsagePlanKey
-    Condition: IsNotDev
     Properties: 
       KeyId: !Ref ApiKey
       KeyType: 'API_KEY'
@@ -95,7 +90,6 @@ Resources:
 
   GetCrunchyListsFunction:
     Type: AWS::Serverless::Function
-    Condition: IsNotDev
     Properties:
       FunctionName: !Sub "${ServiceName}-GetCrunchyLists"
       Role: !GetAtt LambdaRole.Arn
@@ -114,7 +108,6 @@ Resources:
   
   GetCrunchyListFunction:
     Type: AWS::Serverless::Function
-    Condition: IsNotDev
     Properties:
       FunctionName: !Sub "${ServiceName}-GetCrunchyList"
       Role: !GetAtt LambdaRole.Arn
@@ -127,6 +120,24 @@ Resources:
             RestApiId:
               Ref: ApiGatewayApi
             Path: "/api/crunchylists/{id}"
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+
+  GetRecentlyAddedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ServiceName}-GetRecentlyAdded"
+      Role: !GetAtt LambdaRole.Arn
+      CodeUri: crunchyroll_notifier/
+      Handler: handlers/api_handler.get_recently_added
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ApiGatewayApi
+            Path: "/api/recently-added"
             Method: get
             Auth:
               ApiKeyRequired: true

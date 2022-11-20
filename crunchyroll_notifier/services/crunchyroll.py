@@ -15,13 +15,23 @@ class CrunchyrollClient:
 
     def get_custom_lists(self):
         lists = self._cr.get_custom_lists()
-        # return lists
         return [CrunchyList(item.list_id, item) for item in lists]
 
     def get_custom_list(self, list_id):
         list = self._cr.get_custom_list(list_id)
-        # return list
         return CrunchyList(list_id, list)
+
+    def get_recently_added(self, options):
+        default_options = {
+            'sort_by': "newly_added",
+            'max_results': 10,
+            'start_value': 0,
+            'is_dubbed': None,
+            'is_subbed': None
+        }
+        options = default_options | options
+        items = self._cr.browse(**options)
+        return [CrunchyItem(item) for item in items]
 
 class CrunchyList:
     def __init__(self, list_id, data):
@@ -41,3 +51,14 @@ class CrunchyListItem:
         self.description: str = data.panel.description
         self.is_dubbed: bool = data.panel.series_metadata.is_dubbed
         self.is_subbed: bool = data.panel.series_metadata.is_subbed
+
+class CrunchyItem:
+    def __init__(self, data):
+        self.id: str = data.id
+        self.type: str = data.type
+        self.title: str = data.title
+        self.slug_title: str = data.slug_title
+        self.description: str = data.description
+        self.is_dubbed: bool = data.series_metadata.is_dubbed
+        self.is_subbed: bool = data.series_metadata.is_subbed
+        self.last_public: str = data.last_public
