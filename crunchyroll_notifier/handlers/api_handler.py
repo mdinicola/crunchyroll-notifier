@@ -38,6 +38,13 @@ def handle_response(status_code, body):
             'body': body
         }
 
+def handle_options(parameters, option_keys):
+    options = {}
+    for option_key in option_keys:
+        if parameters.get(option_key) is not None:
+            options[option_key] = parameters.get(option_key)
+    return options
+
 def get_crunchylists(event, context):
     try:
         crunchyroll_client = _get_crunchyroll_client()
@@ -61,14 +68,9 @@ def get_crunchylist(event, context):
 def get_recently_added(event, context):
     try:
         crunchyroll_client = _get_crunchyroll_client()
-        options = {}
         query_parameters = event['queryStringParameters']
-        if query_parameters is not None:
-            if query_parameters.get('is_dubbed') is not None:
-                options['is_dubbed'] = bool(query_parameters.get('is_dubbed'))
-            if query_parameters.get('is_subbed') is not None:
-                options['is_subbed'] = bool(query_parameters.get('is_subbed'))
-        
+        option_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days' ]
+        options = handle_options(query_parameters, option_keys) if query_parameters is not None else {}
         recently_added = crunchyroll_client.get_recently_added(options)
         return handle_response(200, json.dumps(recently_added, cls=EnhancedJSONEncoder))
     except Exception as e:

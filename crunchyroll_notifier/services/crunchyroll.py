@@ -27,11 +27,27 @@ class CrunchyrollClient:
             'max_results': 10,
             'start_value': 0,
             'is_dubbed': None,
-            'is_subbed': None
+            'is_subbed': None,
+            'time_period_in_days': None
         }
         options = default_options | options
-        items = self._cr.browse(**options)
-        return [CrunchyItem(item) for item in items]
+
+        browse_options = options.copy()
+        browse_options.pop('time_period_in_days')
+        
+        items = self._cr.browse(**browse_options)
+        crunchy_items = []
+
+        if options.get('time_period_in_days') is not None:
+            current_time = datetime.now(timezone.utc)
+            for item in items:
+                last_public = parser.parse(item.last_public)
+                if (current_time - last_public).days < int(options.get('time_period_in_days')):
+                    crunchy_items.append(CrunchyItem(item))
+        else:
+            crunchy_items = [CrunchyItem(item) for item in items]
+        
+        return crunchy_items
 
 class CrunchyList:
     def __init__(self, list_id, data):
