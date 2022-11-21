@@ -6,7 +6,7 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-class CrunchyrollClient:
+class CrunchyrollService:
     _default_filters = {
             'sort_by': "newly_added",
             'max_results': 10,
@@ -18,23 +18,23 @@ class CrunchyrollClient:
         }
 
     def __init__(self, email: str, password: str):
-        self._cr = Crunchyroll(email, password)
+        self._crunchyroll_client = Crunchyroll(email, password)
 
     def start_session(self):
-        self._cr.start()
+        self._crunchyroll_client.start()
 
     def get_custom_lists(self):
-        lists = self._cr.get_custom_lists()
+        lists = self._crunchyroll_client.get_custom_lists()
         return [CrunchyList(item.list_id, item) for item in lists]
 
     def get_custom_list(self, list_id):
-        list = self._cr.get_custom_list(list_id)
+        list = self._crunchyroll_client.get_custom_list(list_id)
         return CrunchyList(list_id, list)
 
     def get_recently_added(self, filters):
-        filters = CrunchyrollClient._default_filters | filters
+        filters = CrunchyrollService._default_filters | filters
        
-        items = self._cr.browse(sort_by=filters['sort_by'], max_results=filters['max_results'], 
+        items = self._crunchyroll_client.browse(sort_by=filters['sort_by'], max_results=filters['max_results'], 
             start_value=filters['start_value'], is_subbed=filters['is_subbed'], is_dubbed=filters['is_dubbed'])
         crunchy_items = []
 
@@ -51,7 +51,7 @@ class CrunchyrollClient:
         return crunchy_items
 
     def get_recently_added_notifications(self, filters):
-        filters = CrunchyrollClient._default_filters | filters
+        filters = CrunchyrollService._default_filters | filters
         recently_added_items = self.get_recently_added(filters)
         list_id = filters.get('list_id')
         if list_id is not None:
