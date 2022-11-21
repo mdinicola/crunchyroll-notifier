@@ -142,6 +142,24 @@ Resources:
             Auth:
               ApiKeyRequired: true
 
+  GetRecentlyAddedNotificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ServiceName}-GetRecentlyAddedNotifications"
+      Role: !GetAtt LambdaRole.Arn
+      CodeUri: crunchyroll_notifier/
+      Handler: handlers/api_handler.get_recently_added_notifications
+      Events:
+        Get:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ApiGatewayApi
+            Path: "/api/recently-added/notifications"
+            Method: get
+            Auth:
+              ApiKeyRequired: true
+
 Outputs:
   CrunchyrollNotifierApi:
     Description: "API Gateway URL"

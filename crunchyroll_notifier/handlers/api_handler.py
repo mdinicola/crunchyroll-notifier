@@ -38,12 +38,12 @@ def handle_response(status_code, body):
             'body': body
         }
 
-def handle_options(parameters, option_keys):
-    options = {}
-    for option_key in option_keys:
-        if parameters.get(option_key) is not None:
-            options[option_key] = parameters.get(option_key)
-    return options
+def handle_filters(parameters, filter_keys):
+    filters = {}
+    for filter_key in filter_keys:
+        if parameters.get(filter_key) is not None:
+            filters[filter_key] = parameters.get(filter_key)
+    return filters
 
 def get_crunchylists(event, context):
     try:
@@ -69,10 +69,24 @@ def get_recently_added(event, context):
     try:
         crunchyroll_client = _get_crunchyroll_client()
         query_parameters = event['queryStringParameters']
-        option_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days' ]
-        options = handle_options(query_parameters, option_keys) if query_parameters is not None else {}
-        recently_added = crunchyroll_client.get_recently_added(options)
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days' ]
+        filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
+        recently_added = crunchyroll_client.get_recently_added(filters)
         return handle_response(200, json.dumps(recently_added, cls=EnhancedJSONEncoder))
+    except Exception as e:
+        _logger.exception(e)
+        message = 'An unexpected error ocurred.  See log for details.'
+        return handle_response(500, json.dumps({'message': message}))
+
+def get_recently_added_notifications(event, context):
+    try:
+        crunchyroll_client = _get_crunchyroll_client()
+        query_parameters = event['queryStringParameters']
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
+        notifications = crunchyroll_client.get_recently_added_notifications(filters)
+        return handle_response(200, json.dumps(notifications, cls=EnhancedJSONEncoder))
+
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
