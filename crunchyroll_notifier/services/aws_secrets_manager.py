@@ -39,8 +39,5 @@ class SecretsManagerSecret:
         if self._secret is None:
             self._get_secret()
         
-        if key not in self._secret:
-            _logger.exception(f'Could not find key {key} in secret {self.secret_name}')
-            raise KeyError
         return self._secret.get(key)
 

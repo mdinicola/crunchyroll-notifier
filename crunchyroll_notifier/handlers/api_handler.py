@@ -1,31 +1,16 @@
 from common.enhanced_json_encoder import EnhancedJSONEncoder
-from services.aws_secrets_manager import SecretsManagerSecret
+from services.config import ConfigService
 from services.crunchyroll import CrunchyrollService
 from os import environ
 import json
 import logging
 
 _logger = logging.getLogger(__name__)
-_secrets_manager_client = SecretsManagerSecret.get_client()
+_config = ConfigService.load_config(environ['SecretName'])
 
-AWS_SECRET_NAME = environ['SecretName']
-CRUNCHYROLL_EMAIL_KEY = 'CrunchyrollEmail'
-CRUNCHYROLL_PASSWORD_KEY = 'CrunchyrollPassword'
-CRUNCHYROLL_LIST_ID_KEY = 'CrunchyrollListId'
-
-def _get_config():
-    secret = SecretsManagerSecret(_secrets_manager_client, secret_name = AWS_SECRET_NAME)
-    email = secret.get_value(CRUNCHYROLL_EMAIL_KEY)
-    password = secret.get_value(CRUNCHYROLL_PASSWORD_KEY)
-    list_id = secret.get_value(CRUNCHYROLL_LIST_ID_KEY)
-    if email == '' or password == '' or list_id == '':
-        return None
-    return { CRUNCHYROLL_EMAIL_KEY: email, CRUNCHYROLL_PASSWORD_KEY: password, CRUNCHYROLL_LIST_ID_KEY: list_id }
-
-def _get_crunchyroll_service():
+def _get_crunchyroll_service(email, password):
     try:
-        config = _get_config()
-        crunchyroll_service = CrunchyrollService(config[CRUNCHYROLL_EMAIL_KEY], config[CRUNCHYROLL_PASSWORD_KEY])
+        crunchyroll_service = CrunchyrollService(email, password)
         crunchyroll_service.start_session()
         return crunchyroll_service
     except Exception as e:
@@ -43,11 +28,12 @@ def handle_filters(parameters, filter_keys):
     for filter_key in filter_keys:
         if parameters.get(filter_key) is not None:
             filters[filter_key] = parameters.get(filter_key)
+        
     return filters
 
 def get_crunchylists(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
+        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         crunchy_lists = crunchyroll_service.get_custom_lists()
         return handle_response(200, json.dumps(crunchy_lists, cls=EnhancedJSONEncoder))
     except Exception as e:
@@ -57,7 +43,7 @@ def get_crunchylists(event, context):
 
 def get_crunchylist(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
+        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
@@ -67,7 +53,7 @@ def get_crunchylist(event, context):
 
 def get_recently_added(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
+        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         query_parameters = event['queryStringParameters']
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days' ]
         filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
@@ -80,7 +66,7 @@ def get_recently_added(event, context):
 
 def get_recently_added_notifications(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
+        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         query_parameters = event['queryStringParameters']
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
