@@ -26,8 +26,10 @@ def handle_response(status_code, body):
 def handle_filters(parameters, filter_keys):
     filters = {}
     for filter_key in filter_keys:
-        if parameters.get(filter_key) is not None:
+        if parameters is not None and parameters.get(filter_key) is not None:
             filters[filter_key] = parameters.get(filter_key)
+        elif _config.filters.get(filter_key) is not None:
+            filters[filter_key] = _config.filters.get(filter_key)
         
     return filters
 
@@ -35,7 +37,11 @@ def get_crunchylists(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         crunchy_lists = crunchyroll_service.get_custom_lists()
-        return handle_response(200, json.dumps(crunchy_lists, cls=EnhancedJSONEncoder))
+        response = {
+            'total': len(crunchy_lists),
+            'data': crunchy_lists
+        }
+        return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
@@ -55,10 +61,15 @@ def get_recently_added(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         query_parameters = event['queryStringParameters']
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days' ]
-        filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filters = handle_filters(query_parameters, filter_keys)
         recently_added = crunchyroll_service.get_recently_added(filters)
-        return handle_response(200, json.dumps(recently_added, cls=EnhancedJSONEncoder))
+        response = {
+            'filters': filters,
+            'total': len(recently_added),
+            'data': recently_added
+        }
+        return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
@@ -69,9 +80,14 @@ def get_recently_added_notifications(event, context):
         crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
         query_parameters = event['queryStringParameters']
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
-        filters = handle_filters(query_parameters, filter_keys) if query_parameters is not None else {}
+        filters = handle_filters(query_parameters, filter_keys)
         notifications = crunchyroll_service.get_recently_added_notifications(filters)
-        return handle_response(200, json.dumps(notifications, cls=EnhancedJSONEncoder))
+        response = {
+            'filters': filters,
+            'total': len(notifications),
+            'data': notifications
+        }
+        return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
 
     except Exception as e:
         _logger.exception(e)

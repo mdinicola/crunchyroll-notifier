@@ -34,31 +34,30 @@ class CrunchyrollService:
     def get_recently_added(self, filters):
         filters = CrunchyrollService._default_filters | filters
        
-        items = self._crunchyroll_client.browse(sort_by=filters['sort_by'], max_results=filters['max_results'], 
+        crunchy_items = self._crunchyroll_client.browse(sort_by=filters['sort_by'], max_results=filters['max_results'], 
             start_value=filters['start_value'], is_subbed=filters['is_subbed'], is_dubbed=filters['is_dubbed'])
-        crunchy_items = []
+        items = []
 
         time_period_in_days = filters.get('time_period_in_days')
         if time_period_in_days is not None:
             current_time = datetime.now(timezone.utc)
-            for item in items:
+            for item in crunchy_items:
                 last_public = parser.parse(item.last_public)
                 if (current_time - last_public).days < int(time_period_in_days):
-                    crunchy_items.append(CrunchyItem(item))
+                    items.append(CrunchyItem(item))
         else:
-            crunchy_items = [CrunchyItem(item) for item in items]
+            items = [CrunchyItem(item) for item in items]
+
+        list_id = filters.get('list_id')
+        if list_id is not None and list_id != '':
+            list_items = self.get_custom_list(list_id).items
+            items = list(set(items).intersection(set(list_items)))
         
-        return crunchy_items
+        return items
 
     def get_recently_added_notifications(self, filters):
         filters = CrunchyrollService._default_filters | filters
-        recently_added_items = self.get_recently_added(filters)
-        list_id = filters.get('list_id')
-        if list_id is not None:
-            list_items = self.get_custom_list(list_id).items
-            items = list(set(recently_added_items).intersection(set(list_items)))
-        else:
-            items = recently_added_items
+        items = self.get_recently_added(filters)
         notifications = [CrunchyNotification(f"New anime released: {item.title}") for item in items]
         return notifications
 
