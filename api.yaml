@@ -106,7 +106,7 @@ paths:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedNotificationsFunction.Arn}/invocations"
       security:
         - api_key: []
-"/api/recently-added/notify":
+  "/api/recently-added/notify":
     post:
       summary: NotifyOnRecentlyAdded Function
       description: Notifies of newly released anime from Crunchyroll
