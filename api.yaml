@@ -28,7 +28,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyLists.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyListsFunction.Arn}/invocations"
       security:
         - api_key: []
   "/api/crunchylists/{id}":
@@ -53,7 +53,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyList.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyListFunction.Arn}/invocations"
       security:
         - api_key: []
   "/api/recently-added":
@@ -78,7 +78,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAdded.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedFunction.Arn}/invocations"
       security:
         - api_key: []
   "/api/recently-added/notifications":
@@ -103,7 +103,32 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedNotifications.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedNotificationsFunction.Arn}/invocations"
+      security:
+        - api_key: []
+"/api/recently-added/notify":
+    get:
+      summary: NotifyOnRecentlyAdded Function
+      description: Notifies of newly released anime from Crunchyroll
+      operationId: NotifyOnRecentlyAdded
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Success
+        400:
+          description: Bad Request
+        404:
+          description: Not found
+        500:
+          description: 500 Internal Server Error
+        503:
+          description: SERVICE UNAVAILABLE
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotifyOnRecentlyAddedFunction.Arn}/invocations"
       security:
         - api_key: []
 schemes:
