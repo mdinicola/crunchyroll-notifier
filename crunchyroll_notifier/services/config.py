@@ -11,7 +11,7 @@ class ConfigService:
         pushover_credentials: dict):
             self.crunchyroll_credentials = crunchyroll_credentials
             self.crunchyroll_filters = crunchyroll_filters
-
+            self.pushover_credentials = pushover_credentials
 
     @classmethod
     def load_config(cls, secret_name: str):
@@ -24,6 +24,10 @@ class ConfigService:
             'list_id': secret.get_value('CrunchyrollFiltersListId'),
             'time_period_in_days': secret.get_value('CrunchyrollFiltersTimePeriodInDays')
         }
-
+        pushover_credentials = {
+            'user_token': secret.get_value('PushoverUserToken'),
+            'app_token': secret.get_value('PushoverAppToken')
+        }
         return cls(crunchyroll_credentials = crunchyroll_credentials, 
-            crunchyroll_filters = crunchyroll_filters)
+            crunchyroll_filters = crunchyroll_filters,
+            pushover_credentials = pushover_credentials)
