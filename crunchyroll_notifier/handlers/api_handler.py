@@ -1,6 +1,7 @@
 from common.enhanced_json_encoder import EnhancedJSONEncoder
 from services.config import ConfigService
 from services.crunchyroll import CrunchyrollService
+from services.notifications import NotificationService
 from os import environ
 import json
 import logging
@@ -78,11 +79,12 @@ def get_recently_added(event, context):
 
 def get_recently_added_notifications(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
+        crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event['queryStringParameters']
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
-        notifications = crunchyroll_service.get_recently_added_notifications(filters)
+        recently_added = crunchyroll_service.get_recently_added(filters)
+        notifications = NotificationService.get_notifications(recently_added)
         response = {
             'filters': filters,
             'total': len(notifications),

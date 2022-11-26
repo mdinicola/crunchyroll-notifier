@@ -55,13 +55,6 @@ class CrunchyrollService:
         
         return items
 
-    def get_recently_added_notifications(self, filters):
-        filters = CrunchyrollService._default_filters | filters
-        items = self.get_recently_added(filters)
-        notifications = [CrunchyNotification(f"New anime released: {item.title}") for item in items]
-        return notifications
-
-
 class CrunchyList:
     def __init__(self, list_id, data):
         self.id = list_id
@@ -109,7 +102,3 @@ class CrunchyItem:
 
     def __ne__(self, other):
         return not self.__eq__(other)
-
-class CrunchyNotification:
-    def __init__(self, message):
-        self.message = message
