@@ -8,9 +8,10 @@ import logging
 _logger = logging.getLogger(__name__)
 _config = ConfigService.load_config(environ['SecretName'])
 
-def _get_crunchyroll_service(email, password):
+def _get_crunchyroll_service():
     try:
-        crunchyroll_service = CrunchyrollService(email, password)
+        crunchyroll_service = CrunchyrollService(email = _config.crunchyroll_credentials.get('email'), 
+            password = _config.crunchyroll_credentials.get('password'))
         crunchyroll_service.start_session()
         return crunchyroll_service
     except Exception as e:
@@ -28,14 +29,14 @@ def handle_filters(parameters, filter_keys):
     for filter_key in filter_keys:
         if parameters is not None and parameters.get(filter_key) is not None:
             filters[filter_key] = parameters.get(filter_key)
-        elif _config.filters.get(filter_key) is not None:
-            filters[filter_key] = _config.filters.get(filter_key)
+        elif _config.crunchyroll_filters.get(filter_key) is not None:
+            filters[filter_key] = _config.crunchyroll_filters.get(filter_key)
         
     return filters
 
 def get_crunchylists(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
+        crunchyroll_service = _get_crunchyroll_service()
         crunchy_lists = crunchyroll_service.get_custom_lists()
         response = {
             'total': len(crunchy_lists),
@@ -49,7 +50,7 @@ def get_crunchylists(event, context):
 
 def get_crunchylist(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
+        crunchyroll_service = _get_crunchyroll_service()
         crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
@@ -59,7 +60,7 @@ def get_crunchylist(event, context):
 
 def get_recently_added(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service(_config.email, _config.password)
+        crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event['queryStringParameters']
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
