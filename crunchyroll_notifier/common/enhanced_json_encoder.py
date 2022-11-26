@@ -8,4 +8,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
                 return asdict(o)
             return super().default(o)
         except TypeError:
-            return o.__dict__
+            try:
+                return o.__dict__
+            except AttributeError:
+                return None

@@ -81,10 +81,15 @@ def get_recently_added_notifications(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event['queryStringParameters']
+        
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
+        
         recently_added = crunchyroll_service.get_recently_added(filters)
-        notifications = NotificationService.get_notifications(recently_added)
+        
+        notifications = NotificationService.get_notifications("New Anime Released", 
+            recently_added, environ['NotificationSound'])
+        
         response = {
             'filters': filters,
             'total': len(notifications),
@@ -97,3 +102,31 @@ def get_recently_added_notifications(event, context):
         message = 'An unexpected error ocurred.  See log for details.'
         return handle_response(500, json.dumps({'message': message}))
         
+def notify_on_recently_added(event, context):
+    try:
+        crunchyroll_service = _get_crunchyroll_service()
+        query_parameters = event['queryStringParameters']
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 
+            'is_subbed', 'time_period_in_days', 'list_id' ]
+        filters = handle_filters(query_parameters, filter_keys)
+        
+        recently_added = crunchyroll_service.get_recently_added(filters)
+        notifications = NotificationService.get_notifications("New Anime Released", 
+            recently_added, environ['NotificationSound'])
+        
+        notification_service = NotificationService()
+        notification_service.configure_pushover_client(_config.pushover_credentials.get('user_token'), 
+            _config.pushover_credentials.get('app_token'))
+        
+        response = {
+            'filters': filters,
+            'total': len(notifications),
+            'data': [notification_service.notify(notification)
+                for notification in notifications]
+        }
+        return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
+
+    except Exception as e:
+        _logger.exception(e)
+        message = 'An unexpected error ocurred.  See log for details.'
+        return handle_response(500, json.dumps({'message': message}))

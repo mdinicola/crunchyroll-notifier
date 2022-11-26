@@ -16,7 +16,7 @@ Parameters:
     Default: CrunchyrollNotifier
   NotificationSound:
     Type: String
-    Default: classical
+    Default: pianobar
 
 Resources:
   LambdaRole:
@@ -149,6 +149,9 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
       Handler: handlers/api_handler.get_recently_added_notifications
+      Environment:
+        Variables:
+          NotificationSound: !Ref NotificationSound
       Events:
         Get:
           Type: Api
@@ -159,6 +162,34 @@ Resources:
             Method: get
             Auth:
               ApiKeyRequired: true
+
+  NotifyOnRecentlyAddedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAdded"
+      Role: !GetAtt LambdaRole.Arn
+      CodeUri: crunchyroll_notifier/
+      Handler: handlers/api_handler.notify_on_recently_added
+      Environment:
+        Variables:
+          NotificationSound: !Ref NotificationSound
+      Events:
+        Post:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: ApiGatewayApi
+            Path: "/api/recently-added/notify"
+            Method: post
+            Auth:
+              ApiKeyRequired: true
+        OnSchedule:
+          Type: Schedule
+          Properties:
+            Name: "crunchyroll-notifier"
+            Description: "Sends a notification if new anime is out"
+            Enabled: false
+            Schedule: cron(0 0 * * ? *) # UTC time -> 00:00 = 7:00 PM EST, 00:00 = 8:00 PM EDT
 
 Outputs:
   CrunchyrollNotifierApi:
