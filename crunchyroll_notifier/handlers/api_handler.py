@@ -62,7 +62,7 @@ def get_crunchylist(event, context):
 def get_recently_added(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
-        query_parameters = event['queryStringParameters']
+        query_parameters = event.get('queryStringParameters', {})
         
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
@@ -83,7 +83,7 @@ def get_recently_added(event, context):
 def get_recently_added_notifications(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
-        query_parameters = event['queryStringParameters']
+        query_parameters = event.get('queryStringParameters', {})
         
         filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
