@@ -189,7 +189,7 @@ Resources:
             Name: "crunchyroll-notifier"
             Description: "Sends a notification if new anime is out"
             Enabled: true
-            Schedule: cron(0 0 * * ? *) # UTC time -> 00:00 = 7:00 PM EST, 00:00 = 8:00 PM EDT
+            Schedule: cron(0 1 * * ? *) # UTC time -> 00:00 = 7:00 PM EST, 00:00 = 8:00 PM EDT
 
 Outputs:
   CrunchyrollNotifierApi:
