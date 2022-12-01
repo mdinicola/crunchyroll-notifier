@@ -22,6 +22,7 @@ class ConfigService:
         }
         crunchyroll_filters = {
             'list_id': secret.get_value('CrunchyrollFiltersListId'),
+            'is_dubbed': secret.get_value('CrunchyrollFiltersIsDubbed'),
             'time_period_in_days': secret.get_value('CrunchyrollFiltersTimePeriodInDays')
         }
         pushover_credentials = {

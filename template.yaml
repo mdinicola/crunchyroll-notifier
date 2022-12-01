@@ -39,7 +39,7 @@ Resources:
     Properties:
       Name: !Sub "apps/${ServiceName}"
       Description: !Sub "Secret values for the ${ServiceName} application"
-      SecretString: '{"CrunchyrollEmail": "", "CrunchyrollPassword": "", "CrunchyrollFiltersListId": "", "CrunchyrollFiltersTimePeriodInDays": "", "PushoverUserToken": "", "PushoverAppToken": ""}'
+      SecretString: '{"CrunchyrollEmail": "", "CrunchyrollPassword": "", "CrunchyrollFiltersListId": "", "CrunchyrollFiltersIsDubbed": "", "CrunchyrollFiltersTimePeriodInDays": "", "PushoverUserToken": "", "PushoverAppToken": ""}'
 
   ApiGatewayApi:
     Type: AWS::Serverless::Api
