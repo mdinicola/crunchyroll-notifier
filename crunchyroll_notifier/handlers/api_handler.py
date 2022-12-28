@@ -2,6 +2,7 @@ from common.enhanced_json_encoder import EnhancedJSONEncoder
 from services.config import ConfigService
 from services.crunchyroll import CrunchyrollService
 from services.notifications import NotificationService
+from services.db import DatabaseService, SeriesTable
 from os import environ
 import json
 import logging
@@ -16,7 +17,15 @@ def _get_crunchyroll_service():
         crunchyroll_service.start_session()
         return crunchyroll_service
     except Exception as e:
-        _logger.exception(f"An error occurred while getting the client: {e}")
+        _logger.exception(f"An error occurred while getting the crunchyroll client: {e}")
+        raise
+
+def _get_db_connection():
+    try:
+        return DatabaseService().init_connection(host = _config.db_credentials.get('host'), port = _config.db_credentials.get('port'), 
+            user = _config.db_credentials.get('user'), password = _config.db_credentials.get('password'), db_name = _config.db_credentials.get('db_name'))
+    except Exception as e:
+        _logger.exception(f"An error occurred while getting the db connection: {e}")
         raise
 
 def handle_response(status_code, body):
@@ -129,6 +138,23 @@ def notify_on_recently_added(event, context):
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
 
+    except Exception as e:
+        _logger.exception(e)
+        message = 'An unexpected error ocurred.  See log for details.'
+        return handle_response(500, json.dumps({'message': message}))
+
+def sync(event, context):
+    try:
+        # crunchyroll_service = _get_crunchyroll_service()
+        # crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
+        # return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
+        db_connection = _get_db_connection()
+        with db_connection:
+            series = SeriesTable.get(SeriesTable.id == 'a1234')
+        response = {
+            'data': series.__data__
+        }
+        return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
