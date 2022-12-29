@@ -3,6 +3,7 @@ from services.config import ConfigService
 from services.crunchyroll import CrunchyrollService
 from services.notifications import NotificationService
 from services.db import DatabaseService, SeriesTable
+from services.sync import SyncService
 from os import environ
 import json
 import logging
@@ -61,7 +62,9 @@ def get_crunchylists(event, context):
 def get_crunchylist(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
-        crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
+        parameters = { 'list_id': event['pathParameters']['id'] }
+
+        crunchy_list = crunchyroll_service.get_custom_list(parameters)
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
@@ -118,8 +121,7 @@ def notify_on_recently_added(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 
-            'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
         
         recently_added = crunchyroll_service.get_recently_added(filters)
@@ -145,14 +147,21 @@ def notify_on_recently_added(event, context):
 
 def sync(event, context):
     try:
-        # crunchyroll_service = _get_crunchyroll_service()
-        # crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
-        # return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
+        crunchyroll_service = _get_crunchyroll_service()
+        query_parameters = event.get('queryStringParameters', {})
+        
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filters = handle_filters(query_parameters, filter_keys)
+        
+        crunchy_list = crunchyroll_service.get_custom_list(filters)
+
         db_connection = _get_db_connection()
-        with db_connection:
-            series = SeriesTable.get(SeriesTable.id == 'a1234')
+
+        sync_service = SyncService(crunchyroll_service, db_connection)
+        sync_service.sync_list(crunchy_list)
+        
         response = {
-            'data': series.__data__
+            'data': 'hi' #series.__data__
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:

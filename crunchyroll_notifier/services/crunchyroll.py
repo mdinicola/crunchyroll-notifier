@@ -27,9 +27,10 @@ class CrunchyrollService:
         lists = self._crunchyroll_client.get_custom_lists()
         return [CrunchyList(item.list_id, item) for item in lists]
 
-    def get_custom_list(self, list_id):
-        list = self._crunchyroll_client.get_custom_list(list_id)
-        return CrunchyList(list_id, list)
+    def get_custom_list(self, filters):
+        filters = CrunchyrollService._default_filters | filters
+        list = self._crunchyroll_client.get_custom_list(filters['list_id'])
+        return CrunchyList(filters['list_id'], list)
 
     def get_recently_added(self, filters):
         filters = CrunchyrollService._default_filters | filters
