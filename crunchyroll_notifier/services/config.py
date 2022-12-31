@@ -23,7 +23,9 @@ class ConfigService:
         crunchyroll_filters = {
             'list_id': secret.get_value('CrunchyrollFiltersListId'),
             'is_dubbed': secret.get_value('CrunchyrollFiltersIsDubbed'),
-            'time_period_in_days': secret.get_value('CrunchyrollFiltersTimePeriodInDays')
+            'time_period_in_days': secret.get_value('CrunchyrollFiltersTimePeriodInDays'),
+            'audio_locales': list(filter(None, secret.get_value('CrunchyrollFiltersAudioLocales', '').split(','))),
+            'subtitle_locales': list(filter(None, secret.get_value('CrunchyrollFiltersSubtitleLocales', '').split(','))),
         }
         pushover_credentials = {
             'user_token': secret.get_value('PushoverUserToken'),
