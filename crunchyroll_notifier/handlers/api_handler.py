@@ -52,7 +52,9 @@ def get_crunchylists(event, context):
 def get_crunchylist(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
-        crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
+        parameters = { 'list_id': event['pathParameters']['id'] }
+
+        crunchy_list = crunchyroll_service.get_custom_list(parameters)
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
@@ -109,8 +111,7 @@ def notify_on_recently_added(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 
-            'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
         filters = handle_filters(query_parameters, filter_keys)
         
         recently_added = crunchyroll_service.get_recently_added(filters)
