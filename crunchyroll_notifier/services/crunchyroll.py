@@ -32,6 +32,10 @@ class CrunchyrollService:
         list = self._crunchyroll_client.get_custom_list(filters['list_id'])
         return CrunchyList(filters['list_id'], list)
 
+    def get_seasons_for_series(self, series_id):
+        items = self._crunchyroll_client.get_seasons(series_id)
+        return [CrunchySeason(item) for item in items]
+
     def get_recently_added(self, filters):
         filters = CrunchyrollService._default_filters | filters
        
@@ -105,3 +109,14 @@ class CrunchyItem:
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+class CrunchySeason:
+    def __init__(self, data):
+        self.id: str = data.id
+        self.title: str = data.title
+        self.slug_title: str = data.slug_title
+        self.series_id: str = data.series_id
+        self.season_number: int = data.season_number
+        self.audio_locale: str = data.audio_locale
+        self.audio_locales: List[str] = data.audio_locales
+        self.subtitle_locales: List[str] = data.subtitle_locales
