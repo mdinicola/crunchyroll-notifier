@@ -150,18 +150,18 @@ def sync(event, context):
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id', 'audio_locales', 'subtitle_locales' ]
         filters = handle_filters(query_parameters, filter_keys)
         
         crunchy_list = crunchyroll_service.get_custom_list(filters)
 
         db_connection = _get_db_connection()
 
-        sync_service = SyncService(crunchyroll_service, db_connection)
+        sync_service = SyncService(filters, crunchyroll_service, db_connection)
         sync_service.sync_list(crunchy_list)
         
         response = {
-            'data': 'hi' #series.__data__
+            'data': 'hi'
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:

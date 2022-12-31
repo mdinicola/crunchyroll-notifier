@@ -35,9 +35,9 @@ class SecretsManagerSecret:
             _logger.exception(f'Could not get secret value for {self.secret_name} with error {e}')
             raise
 
-    def get_value(self, key):
+    def get_value(self, key, default_value = None):
         if self._secret is None:
             self._get_secret()
         
-        return self._secret.get(key)
+        return self._secret.get(key, default_value)
 
