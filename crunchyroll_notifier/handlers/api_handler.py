@@ -63,34 +63,44 @@ def get_crunchylist(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
 def get_recently_added_episodes(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
+        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         
         response = {
-            'meta': { 'filters': filters, 'count': len(recently_added) },
-            'data': recently_added
+            'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
+            'data': recently_added_episodes
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
 def get_recently_added_episode_notifications(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
         recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
