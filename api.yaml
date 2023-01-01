@@ -58,9 +58,9 @@ paths:
         - api_key: []
   "/episodes/recently-added":
     get:
-      summary: GetRecentlyAdded Function
+      summary: GetRecentlyAddedEpisodes Function
       description: Gets recently added items from Crunchyroll
-      operationId: GetRecentlyAdded
+      operationId: GetRecentlyAddedEpisodes
       produces:
         - application/json
       responses:
@@ -83,9 +83,9 @@ paths:
         - api_key: []
   "/episodes/recently-added/notifications":
     get:
-      summary: GetRecentlyAddedNotifications Function
+      summary: GetRecentlyAddedEpisodeNotifications Function
       description: Gets notification data for recently added items from Crunchyroll
-      operationId: GetRecentlyAddedNotifications
+      operationId: GetRecentlyAddedEpisodeNotifications
       produces:
         - application/json
       responses:
@@ -108,9 +108,9 @@ paths:
         - api_key: []
   "/episodes/recently-added/notify":
     post:
-      summary: NotifyOnRecentlyAdded Function
+      summary: NotifyOnRecentlyAddedEpisodes Function
       description: Notifies of newly released anime from Crunchyroll
-      operationId: NotifyOnRecentlyAdded
+      operationId: NotifyOnRecentlyAddedEpisodes
       produces:
         - application/json
       responses:
@@ -128,7 +128,7 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotifyOnRecentlyAddedFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${NotifyOnRecentlyAddedEpisodesFunction.Arn}/invocations"
       security:
         - api_key: []
 schemes:
