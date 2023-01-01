@@ -47,7 +47,12 @@ def get_crunchylists(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
 def get_crunchylist(event, context):
     try:
@@ -102,7 +107,12 @@ def get_recently_added_episode_notifications(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
         
 def notify_on_recently_added_episodes(event, context):
     try:
@@ -130,4 +140,9 @@ def notify_on_recently_added_episodes(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
