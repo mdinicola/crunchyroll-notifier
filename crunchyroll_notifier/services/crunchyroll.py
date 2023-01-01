@@ -44,10 +44,12 @@ class CrunchyrollService:
         current_time = datetime.now(timezone.utc)
         for series in self.get_custom_list(list_id).items:
             for season in self.get_seasons(series.id):
-                if (len(filters['audio_locales']) == 0 or season.audio_locale in filters['audio_locales']):                       
+                if (len(filters['audio_locales']) == 0 or (season.audio_locale in filters['audio_locales'] and 
+                    (filters['is_dubbed'] is not None and season.is_dubbed == bool(filters['is_dubbed'])))):
                     for episode in self.get_episodes(season.id):
                         if (current_time - parser.parse(episode.upload_date)).days < int(time_period_in_days):
-                            items.append(episode)
+                            if (filters['is_dubbed'] is not None and episode.is_dubbed == bool(filters['is_dubbed'])):
+                                items.append(episode)
         return items             
 
     # def get_all_recently_updated(self, filters):
@@ -131,6 +133,8 @@ class CrunchySeason:
         self.slug_title: str = data.slug_title
         self.series_id: str = data.series_id
         self.season_number: int = data.season_number
+        self.is_subbed: bool = data.is_subbed
+        self.is_dubbed: bool = data.is_dubbed
         self.audio_locale: str = data.audio_locale
         self.audio_locales: List[str] = data.audio_locales
         self.subtitle_locales: List[str] = data.subtitle_locales
