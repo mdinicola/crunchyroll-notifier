@@ -101,7 +101,7 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/crunchylists"
+            Path: "/crunchylists"
             Method: get
             Auth:
               ApiKeyRequired: true
@@ -119,7 +119,7 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/crunchylists/{id}"
+            Path: "/crunchylists/{id}"
             Method: get
             Auth:
               ApiKeyRequired: true

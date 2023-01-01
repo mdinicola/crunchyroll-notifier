@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 basePath: "/"
 paths:
-  "/api/crunchylists":
+  "/crunchylists":
     get:
       summary: GetCrunchyLists Function
       description: Gets all your custom lists from Crunchyroll
@@ -31,7 +31,7 @@ paths:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyListsFunction.Arn}/invocations"
       security:
         - api_key: []
-  "/api/crunchylists/{id}":
+  "/crunchylists/{id}":
     get:
       summary: GetCrunchyList Function
       description: Gets a custom list from Crunchyroll by id
