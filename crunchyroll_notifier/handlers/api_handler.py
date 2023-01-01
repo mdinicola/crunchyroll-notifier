@@ -52,28 +52,26 @@ def get_crunchylists(event, context):
 def get_crunchylist(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
-        parameters = { 'list_id': event['pathParameters']['id'] }
 
-        crunchy_list = crunchyroll_service.get_custom_list(parameters)
+        crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
         return handle_response(500, json.dumps({'message': message}))
 
-def get_recently_added(event, context):
+def get_recently_added_episodes(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added(filters)
+        recently_added = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         
         response = {
-            'filters': filters,
-            'total': len(recently_added),
+            'meta': { 'filters': filters, 'count': len(recently_added) },
             'data': recently_added
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
@@ -82,22 +80,21 @@ def get_recently_added(event, context):
         message = 'An unexpected error ocurred.  See log for details.'
         return handle_response(500, json.dumps({'message': message}))
 
-def get_recently_added_notifications(event, context):
+def get_recently_added_episode_notifications(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added(filters)
+        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         
         notifications = NotificationService.get_notifications("New Anime Released", 
-            recently_added, environ['NotificationSound'])
+            recently_added_episodes, environ['NotificationSound'])
         
         response = {
-            'filters': filters,
-            'total': len(notifications),
+            'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
             'data': notifications
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
@@ -107,7 +104,7 @@ def get_recently_added_notifications(event, context):
         message = 'An unexpected error ocurred.  See log for details.'
         return handle_response(500, json.dumps({'message': message}))
         
-def notify_on_recently_added(event, context):
+def notify_on_recently_added_episodes(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
