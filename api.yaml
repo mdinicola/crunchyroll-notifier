@@ -6,7 +6,7 @@ info:
   version: 1.0.0
 basePath: "/"
 paths:
-  "/api/crunchylists":
+  "/crunchylists":
     get:
       summary: GetCrunchyLists Function
       description: Gets all your custom lists from Crunchyroll
@@ -31,7 +31,7 @@ paths:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyListsFunction.Arn}/invocations"
       security:
         - api_key: []
-  "/api/crunchylists/{id}":
+  "/crunchylists/{id}":
     get:
       summary: GetCrunchyList Function
       description: Gets a custom list from Crunchyroll by id
@@ -56,7 +56,7 @@ paths:
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetCrunchyListFunction.Arn}/invocations"
       security:
         - api_key: []
-  "/api/recently-added":
+  "/episodes/recently-added":
     get:
       summary: GetRecentlyAdded Function
       description: Gets recently added items from Crunchyroll
@@ -78,10 +78,10 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedEpisodesFunction.Arn}/invocations"
       security:
         - api_key: []
-  "/api/recently-added/notifications":
+  "/episodes/recently-added/notifications":
     get:
       summary: GetRecentlyAddedNotifications Function
       description: Gets notification data for recently added items from Crunchyroll
@@ -103,10 +103,10 @@ paths:
         type: aws_proxy
         httpMethod: POST
         uri: 
-          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedNotificationsFunction.Arn}/invocations"
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRecentlyAddedEpisodeNotificationsFunction.Arn}/invocations"
       security:
         - api_key: []
-  "/api/recently-added/notify":
+  "/episodes/recently-added/notify":
     post:
       summary: NotifyOnRecentlyAdded Function
       description: Notifies of newly released anime from Crunchyroll

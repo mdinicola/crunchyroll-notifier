@@ -101,7 +101,7 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/crunchylists"
+            Path: "/crunchylists"
             Method: get
             Auth:
               ApiKeyRequired: true
@@ -119,36 +119,36 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/crunchylists/{id}"
+            Path: "/crunchylists/{id}"
             Method: get
             Auth:
               ApiKeyRequired: true
 
-  GetRecentlyAddedFunction:
+  GetRecentlyAddedEpisodesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${ServiceName}-GetRecentlyAdded"
+      FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodes"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added
+      Handler: handlers/api_handler.get_recently_added_episodes
       Events:
         Get:
           Type: Api
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/recently-added"
+            Path: "/episodes/recently-added"
             Method: get
             Auth:
               ApiKeyRequired: true
 
-  GetRecentlyAddedNotificationsFunction:
+  GetRecentlyAddedEpisodeNotificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${ServiceName}-GetRecentlyAddedNotifications"
+      FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodeNotifications"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added_notifications
+      Handler: handlers/api_handler.get_recently_added_episode_notifications
       Environment:
         Variables:
           NotificationSound: !Ref NotificationSound
@@ -158,18 +158,18 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/recently-added/notifications"
+            Path: "/episodes/recently-added/notifications"
             Method: get
             Auth:
               ApiKeyRequired: true
 
-  NotifyOnRecentlyAddedFunction:
+  NotifyOnRecentlyAddedEpisodesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAdded"
+      FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAddedEpisodes"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.notify_on_recently_added
+      Handler: handlers/api_handler.notify_on_recently_added_episodes
       Environment:
         Variables:
           NotificationSound: !Ref NotificationSound
@@ -179,7 +179,7 @@ Resources:
           Properties:
             RestApiId:
               Ref: ApiGatewayApi
-            Path: "/api/recently-added/notify"
+            Path: "/episodes/recently-added/notify"
             Method: post
             Auth:
               ApiKeyRequired: true

@@ -47,55 +47,68 @@ def get_crunchylists(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
 def get_crunchylist(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
+
         crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
-def get_recently_added(event, context):
+def get_recently_added_episodes(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added(filters)
+        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         
         response = {
-            'filters': filters,
-            'total': len(recently_added),
-            'data': recently_added
+            'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
+            'data': recently_added_episodes
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
 
-def get_recently_added_notifications(event, context):
+def get_recently_added_episode_notifications(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added(filters)
-        
+        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         notifications = NotificationService.get_notifications("New Anime Released", 
-            recently_added, environ['NotificationSound'])
+            recently_added_episodes, environ['NotificationSound'])
         
         response = {
-            'filters': filters,
-            'total': len(notifications),
+            'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
             'data': notifications
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
@@ -103,33 +116,40 @@ def get_recently_added_notifications(event, context):
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))
         
-def notify_on_recently_added(event, context):
+def notify_on_recently_added_episodes(event, context):
     try:
         crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
-        filter_keys = [ 'sort_by', 'max_results', 'start_value', 'is_dubbed', 
-            'is_subbed', 'time_period_in_days', 'list_id' ]
+        filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added = crunchyroll_service.get_recently_added(filters)
+        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         notifications = NotificationService.get_notifications("New Anime Released", 
-            recently_added, environ['NotificationSound'])
+            recently_added_episodes, environ['NotificationSound'])
         
         notification_service = NotificationService()
         notification_service.configure_pushover_client(_config.pushover_credentials.get('user_token'), 
             _config.pushover_credentials.get('app_token'))
         
         response = {
-            'filters': filters,
-            'total': len(notifications),
-            'data': [notification_service.notify(notification)
-                for notification in notifications]
+            'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
+            'data': [notification_service.notify(notification) for notification in notifications]
         }
         return handle_response(200, json.dumps(response, cls=EnhancedJSONEncoder))
 
     except Exception as e:
         _logger.exception(e)
         message = 'An unexpected error ocurred.  See log for details.'
-        return handle_response(500, json.dumps({'message': message}))
+        response = {
+            'error': {
+                'message': message
+            }
+        }
+        return handle_response(500, json.dumps(response))

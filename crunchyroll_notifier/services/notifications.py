@@ -12,7 +12,7 @@ class NotificationService:
 
     @staticmethod
     def get_notifications(notification_title, data, sound):
-        return [CrunchyNotification(notification_title, item.title, sound) for item in data]
+        return [CrunchyNotification(notification_title, f"{item.series_title} - {item.season_number}x{item.episode_number} - {item.title}", sound) for item in data]
 
     def notify(self, data):
         return self.notification_client.notify(data)
