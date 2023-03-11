@@ -55,7 +55,7 @@ class CrunchyrollService:
                     for episode in self.get_episodes(season.id):
                         _logger.info(f"Processing Episode: {episode.id}")
                         
-                        episode_upload_date = parser.parse(episode.upload_date)
+                        episode_upload_date = parser.parse(episode.upload_date).astimezone(UTC)
                         day_diff = (current_time - episode_upload_date).days
 
                         _logger.info(f"Current Time: {current_time}, Episode, Upload Date: {episode_upload_date}, Days Difference: {day_diff}")
