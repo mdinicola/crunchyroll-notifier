@@ -4,6 +4,7 @@ import logging
 import boto3
 
 _logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 class SecretsManagerSecret:
 

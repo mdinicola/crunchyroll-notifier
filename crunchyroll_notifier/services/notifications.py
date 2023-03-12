@@ -2,6 +2,7 @@ import requests
 import logging
 
 _logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 class NotificationService:
     def __init__(self, notification_client = None):
