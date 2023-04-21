@@ -158,6 +158,7 @@ class CrunchyEpisode:
         self.audio_locale: str = data.audio_locale
         self.subtitle_locales: List[str] = data.subtitle_locales
         self.upload_date: str = data.upload_date
+        self.premium_available_date: str = data.premium_available_date
         
     def __hash__(self):
         return hash(self.id)
