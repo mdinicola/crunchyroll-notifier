@@ -67,13 +67,18 @@ class CrunchyrollService:
 
                 if scan_season:
                     _logger.info(f"Starting scan of season: {series.title}-{series.id} - {season.title}-{season.id}")
-                    for episode in self.get_episodes(season.id):                       
-                        episode_upload_date = parser.parse(episode.premium_available_date).astimezone(UTC)
-                        day_diff = (current_time - episode_upload_date).days
+                    for episode in self.get_episodes(season.id):
+                        # get both upload date and premium availability date because Crunchyroll is not consistent
+                        episode_upload_date = parser.parse(episode.upload_date).astimezone(UTC)
+                        episode_premium_available_date = parser.parse(episode.premium_available_date).astimezone(UTC)
 
-                        _logger.info(f"Series: {series.title}-{series.id}, Season: {season.title}-{season.id}, Episode: {episode.title}-{episode.id}, Current Time: {current_time}, Episode Upload Date: {episode_upload_date}, Days Difference: {day_diff}")
+                        # Calculate date difference between availability and now
+                        day_diff_uploaded = (current_time - episode_upload_date).days
+                        day_diff_premium_availability = (current_time - episode_premium_available_date).days
 
-                        if (day_diff < int(time_period_in_days)):
+                        _logger.info(f"Series: {series.title}-{series.id}, Season: {season.title}-{season.id}, Episode: {episode.title}-{episode.id}, Current Time: {current_time}, Episode Upload Date: {episode_upload_date}, Upload Days Difference: {day_diff_uploaded}, Premium Availability Days Difference: {day_diff_premium_availability}")
+
+                        if (day_diff_uploaded < int(time_period_in_days) or day_diff_premium_availability < int(time_period_in_days)):
                             if (filters['is_dubbed'] is not None and episode.is_dubbed == bool(filters['is_dubbed'])):
                                 items.append(episode)
                 else:
