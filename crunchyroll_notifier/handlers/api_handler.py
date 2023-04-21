@@ -7,6 +7,7 @@ import json
 import logging
 
 _logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 _config = ConfigService.load_config(environ['SecretName'])
 
 def _get_crunchyroll_service():

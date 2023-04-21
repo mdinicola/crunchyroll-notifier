@@ -3,6 +3,7 @@ from os import environ
 import logging
 
 _logger = logging.getLogger(__name__)
+_logger.setLevel(logging.INFO)
 
 class ConfigService:
     _secrets_manager_client = SecretsManagerSecret.get_client()
