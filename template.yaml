@@ -94,7 +94,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-GetCrunchyLists"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_crunchylists
+      Handler: handlers/api.get_crunchylists
       Events:
         Get:
           Type: Api
@@ -112,7 +112,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-GetCrunchyList"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_crunchylist
+      Handler: handlers/api.get_crunchylist
       Events:
         Get:
           Type: Api
@@ -130,7 +130,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodes"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added_episodes
+      Handler: handlers/api.get_recently_added_episodes
       Events:
         Get:
           Type: Api
@@ -148,7 +148,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodeNotifications"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added_episode_notifications
+      Handler: handlers/api.get_recently_added_episode_notifications
       Environment:
         Variables:
           NotificationSound: !Ref NotificationSound
@@ -169,7 +169,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAddedEpisodes"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.notify_on_recently_added_episodes
+      Handler: handlers/api.notify_on_recently_added_episodes
       Environment:
         Variables:
           NotificationSound: !Ref NotificationSound

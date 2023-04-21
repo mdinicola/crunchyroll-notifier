@@ -8,17 +8,8 @@ import logging
 
 _logger = logging.getLogger(__name__)
 _logger.setLevel(logging.INFO)
-_config = ConfigService.load_config(environ['SecretName'])
-
-def _get_crunchyroll_service():
-    try:
-        crunchyroll_service = CrunchyrollService(email = _config.crunchyroll_credentials.get('email'), 
-            password = _config.crunchyroll_credentials.get('password'))
-        crunchyroll_service.start_session()
-        return crunchyroll_service
-    except Exception as e:
-        _logger.exception(f"An error occurred while getting the client: {e}")
-        raise
+_config = ConfigService.load_config()
+_crunchyroll_service = CrunchyrollService(_config.crunchyroll)
 
 def handle_response(status_code, body):
     return {
@@ -27,19 +18,16 @@ def handle_response(status_code, body):
         }
 
 def handle_filters(parameters, filter_keys):
-    filters = {}
+    filters = _config.filters
     for filter_key in filter_keys:
         if parameters is not None and parameters.get(filter_key) is not None:
             filters[filter_key] = parameters.get(filter_key)
-        elif _config.crunchyroll_filters.get(filter_key) is not None:
-            filters[filter_key] = _config.crunchyroll_filters.get(filter_key)
         
     return filters
 
 def get_crunchylists(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
-        crunchy_lists = crunchyroll_service.get_custom_lists()
+        crunchy_lists = _crunchyroll_service.get_custom_lists()
         response = {
             'total': len(crunchy_lists),
             'data': crunchy_lists
@@ -57,9 +45,7 @@ def get_crunchylists(event, context):
 
 def get_crunchylist(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
-
-        crunchy_list = crunchyroll_service.get_custom_list(event['pathParameters']['id'])
+        crunchy_list = _crunchyroll_service.get_custom_list(event['pathParameters']['id'])
         return handle_response(200, json.dumps(crunchy_list, cls=EnhancedJSONEncoder))
     except Exception as e:
         _logger.exception(e)
@@ -73,13 +59,12 @@ def get_crunchylist(event, context):
 
 def get_recently_added_episodes(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
         filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
+        recently_added_episodes = _crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         
         response = {
             'meta': { 'filters': filters, 'count': len(recently_added_episodes) },
@@ -98,13 +83,12 @@ def get_recently_added_episodes(event, context):
 
 def get_recently_added_episode_notifications(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         
         filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
+        recently_added_episodes = _crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         notifications = NotificationService.get_notifications("New Anime Released", 
             recently_added_episodes, environ['NotificationSound'])
         
@@ -126,12 +110,11 @@ def get_recently_added_episode_notifications(event, context):
         
 def notify_on_recently_added_episodes(event, context):
     try:
-        crunchyroll_service = _get_crunchyroll_service()
         query_parameters = event.get('queryStringParameters', {})
         filter_keys = [ 'time_period_in_days', 'list_id', 'audio_locales', 'is_dubbed' ]
         filters = handle_filters(query_parameters, filter_keys)
         
-        recently_added_episodes = crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
+        recently_added_episodes = _crunchyroll_service.get_recently_added_episodes_from_list(filters['list_id'], filters)
         notifications = NotificationService.get_notifications("New Anime Released", 
             recently_added_episodes, environ['NotificationSound'])
         
