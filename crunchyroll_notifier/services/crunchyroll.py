@@ -45,10 +45,9 @@ class CrunchyrollService:
         time_period_in_days = filters.get('time_period_in_days')
         current_time = datetime.now(timezone.utc)
         for series in self.get_custom_list(list_id).items:
-            _logger.info(f"Processing Series: {series.id}")
+            _logger.info(f"Processing Series: {series.title}-{series.id}")
 
             for season in self.get_seasons(series.id):
-                _logger.info(f"Processing Season: {season.id}")
                 scan_season = False
 
                 if (len(filters['audio_locales']) == 0 or filters['is_dubbed'] is None):
@@ -58,20 +57,18 @@ class CrunchyrollService:
                     scan_season = True
 
                 if scan_season:
-                    _logger.info(f"Starting scan of season: {season.id}")
-                    for episode in self.get_episodes(season.id):
-                        _logger.info(f"Processing Episode: {episode.id}")
-                        
-                        episode_upload_date = parser.parse(episode.upload_date).astimezone(UTC)
+                    _logger.info(f"Starting scan of season: {series.title}-{series.id} - {season.title}-{season.id}")
+                    for episode in self.get_episodes(season.id):                       
+                        episode_upload_date = parser.parse(episode.premium_available_date).astimezone(UTC)
                         day_diff = (current_time - episode_upload_date).days
 
-                        _logger.info(f"Current Time: {current_time}, Episode Upload Date: {episode_upload_date}, Days Difference: {day_diff}")
+                        _logger.info(f"Series: {series.title}-{series.id}, Season: {season.title}-{season.id}, Episode: {episode.title}-{episode.id}, Current Time: {current_time}, Episode Upload Date: {episode_upload_date}, Days Difference: {day_diff}")
 
                         if (day_diff < int(time_period_in_days)):
                             if (filters['is_dubbed'] is not None and episode.is_dubbed == bool(filters['is_dubbed'])):
                                 items.append(episode)
                 else:
-                    _logger.info(f"Not scanning season: {season.id}")
+                    _logger.info(f"Not scanning season: {series.title}-{series.id} - {season.title}-{season.id}")
         return items             
 
 class CrunchyList:
