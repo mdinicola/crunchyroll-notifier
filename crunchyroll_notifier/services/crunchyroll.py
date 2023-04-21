@@ -18,29 +18,38 @@ class CrunchyrollService:
             'list_id': None
         }
 
-    def __init__(self, email: str, password: str):
+    def __init__(self, config: dict):
+        email = config.get('email')
+        password = config.get('password')
         self._crunchyroll_client = Crunchyroll(email, password)
 
     def start_session(self):
+        if self._crunchyroll_client.account_data.access_token is not None:
+            return
         self._crunchyroll_client.start()
 
     def get_custom_lists(self):
+        self.start_session()
         lists = self._crunchyroll_client.get_custom_lists()
         return [CrunchyList(item.list_id, item) for item in lists]
 
     def get_custom_list(self, list_id: str):
+        self.start_session()
         list = self._crunchyroll_client.get_custom_list(list_id)
         return CrunchyList(list_id, list)
 
     def get_seasons(self, series_id: str):
+        self.start_session()
         items = self._crunchyroll_client.get_seasons(series_id)
         return [CrunchySeason(item) for item in items]
 
     def get_episodes(self, season_id: str):
+        self.start_session()
         items = self._crunchyroll_client.get_episodes(season_id)
         return [CrunchyEpisode(item) for item in items]
 
     def get_recently_added_episodes_from_list(self, list_id: str, filters: dict):
+        self.start_session()
         items = []
         time_period_in_days = filters.get('time_period_in_days')
         current_time = datetime.now(timezone.utc)

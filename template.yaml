@@ -88,59 +88,59 @@ Resources:
       KeyType: 'API_KEY'
       UsagePlanId: !Ref UsagePlan
 
-  GetCrunchyListsFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${ServiceName}-GetCrunchyLists"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_crunchylists
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/crunchylists"
-            Method: get
-            Auth:
-              ApiKeyRequired: true
+  # GetCrunchyListsFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: !Sub "${ServiceName}-GetCrunchyLists"
+  #     Role: !GetAtt LambdaRole.Arn
+  #     CodeUri: crunchyroll_notifier/
+  #     Handler: handlers/api.get_crunchylists
+  #     Events:
+  #       Get:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId:
+  #             Ref: ApiGatewayApi
+  #           Path: "/crunchylists"
+  #           Method: get
+  #           Auth:
+  #             ApiKeyRequired: true
   
-  GetCrunchyListFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${ServiceName}-GetCrunchyList"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_crunchylist
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/crunchylists/{id}"
-            Method: get
-            Auth:
-              ApiKeyRequired: true
+  # GetCrunchyListFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: !Sub "${ServiceName}-GetCrunchyList"
+  #     Role: !GetAtt LambdaRole.Arn
+  #     CodeUri: crunchyroll_notifier/
+  #     Handler: handlers/api.get_crunchylist
+  #     Events:
+  #       Get:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId:
+  #             Ref: ApiGatewayApi
+  #           Path: "/crunchylists/{id}"
+  #           Method: get
+  #           Auth:
+  #             ApiKeyRequired: true
 
-  GetRecentlyAddedEpisodesFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodes"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added_episodes
-      Events:
-        Get:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/episodes/recently-added"
-            Method: get
-            Auth:
-              ApiKeyRequired: true
+  # GetRecentlyAddedEpisodesFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodes"
+  #     Role: !GetAtt LambdaRole.Arn
+  #     CodeUri: crunchyroll_notifier/
+  #     Handler: handlers/api.get_recently_added_episodes
+  #     Events:
+  #       Get:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId:
+  #             Ref: ApiGatewayApi
+  #           Path: "/episodes/recently-added"
+  #           Method: get
+  #           Auth:
+  #             ApiKeyRequired: true
 
   GetRecentlyAddedEpisodeNotificationsFunction:
     Type: AWS::Serverless::Function
@@ -148,7 +148,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-GetRecentlyAddedEpisodeNotifications"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.get_recently_added_episode_notifications
+      Handler: handlers/api.get_recently_added_episode_notifications
       Environment:
         Variables:
           NotificationSound: !Ref NotificationSound
@@ -163,33 +163,33 @@ Resources:
             Auth:
               ApiKeyRequired: true
 
-  NotifyOnRecentlyAddedEpisodesFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAddedEpisodes"
-      Role: !GetAtt LambdaRole.Arn
-      CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.notify_on_recently_added_episodes
-      Environment:
-        Variables:
-          NotificationSound: !Ref NotificationSound
-      Events:
-        Post:
-          Type: Api
-          Properties:
-            RestApiId:
-              Ref: ApiGatewayApi
-            Path: "/episodes/recently-added/notify"
-            Method: post
-            Auth:
-              ApiKeyRequired: true
-        OnSchedule:
-          Type: Schedule
-          Properties:
-            Name: "crunchyroll-notifier"
-            Description: "Sends a notification if new anime is out"
-            Enabled: true
-            Schedule: cron(0 0 * * ? *) # UTC time -> 00:00 = 7:00 PM EST, 00:00 = 8:00 PM EDT
+  # NotifyOnRecentlyAddedEpisodesFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     FunctionName: !Sub "${ServiceName}-NotifyOnRecentlyAddedEpisodes"
+  #     Role: !GetAtt LambdaRole.Arn
+  #     CodeUri: crunchyroll_notifier/
+  #     Handler: handlers/api.notify_on_recently_added_episodes
+  #     Environment:
+  #       Variables:
+  #         NotificationSound: !Ref NotificationSound
+  #     Events:
+  #       Post:
+  #         Type: Api
+  #         Properties:
+  #           RestApiId:
+  #             Ref: ApiGatewayApi
+  #           Path: "/episodes/recently-added/notify"
+  #           Method: post
+  #           Auth:
+  #             ApiKeyRequired: true
+  #       OnSchedule:
+  #         Type: Schedule
+  #         Properties:
+  #           Name: "crunchyroll-notifier"
+  #           Description: "Sends a notification if new anime is out"
+  #           Enabled: true
+  #           Schedule: cron(0 0 * * ? *) # UTC time -> 00:00 = 7:00 PM EST, 00:00 = 8:00 PM EDT
 
   SyncFunction:
     Type: AWS::Serverless::Function
@@ -197,7 +197,7 @@ Resources:
       FunctionName: !Sub "${ServiceName}-Sync"
       Role: !GetAtt LambdaRole.Arn
       CodeUri: crunchyroll_notifier/
-      Handler: handlers/api_handler.sync
+      Handler: handlers/api.sync
       Events:
         Get:
           Type: Api
