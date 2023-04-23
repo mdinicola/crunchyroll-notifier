@@ -119,8 +119,7 @@ def notify_on_recently_added_episodes(event, context):
             recently_added_episodes, environ['NotificationSound'])
         
         notification_service = NotificationService()
-        notification_service.configure_pushover_client(_config.pushover_credentials.get('user_token'), 
-            _config.pushover_credentials.get('app_token'))
+        notification_service.configure_pushover_client(_config.pushover)
         
         response = {
             'meta': { 'filters': filters, 'count': len(recently_added_episodes) },

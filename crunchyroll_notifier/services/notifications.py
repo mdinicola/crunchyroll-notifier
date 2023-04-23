@@ -8,8 +8,8 @@ class NotificationService:
     def __init__(self, notification_client = None):
         self.notification_client = notification_client        
 
-    def configure_pushover_client(self, user_token: str, app_token: str):
-        self.notification_client = PushoverClient(user_token, app_token)
+    def configure_pushover_client(self, config: dict):
+        self.notification_client = PushoverClient(config.get('user_token'), config.get('app_token'))
 
     @staticmethod
     def get_notifications(notification_title, data, sound):
